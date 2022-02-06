@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# sppoapi_digital_innovation_one_unitary_tests
-Aplicação de testes unitários no projeto SPPOAPI.
-=======
 <h2>Implementação de testes unitários no projeto SPPO-API</h2>
 
 Este projeto tem como objetivo testar, unitariamente, a API REST SPPO. 
@@ -53,4 +49,3 @@ São necessários os seguintes pré-requisitos para a execução do projeto:
 * Controle de versão GIT instalado na sua máquina.
 * Conta no GitHub para o armazenamento do seu projeto na nuvem.
 * Conta no Heroku para o deploy do projeto na nuvem
->>>>>>> 0413438 (sppo-api-unitary-tests project added)
