@@ -9,9 +9,7 @@ import org.hibernate.validator.constraints.br.CNPJ;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
-import java.util.List;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
@@ -24,11 +22,8 @@ public class ConsortiumDTO {
     @Enumerated(EnumType.STRING)
     private ConsortiumName name;
 
-    @NotEmpty
+    @NotNull
     @CNPJ // XX. XXX. XXX/0001-XX
     private String cnpj;
 
-    @Valid
-    @NotEmpty
-    private List<CompanyDTO> companies;
 }

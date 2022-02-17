@@ -1,9 +1,10 @@
 package one.digitalinnovation.sppoapi.services;
 
+import one.digitalinnovation.sppoapi.builder.ConsortiumDTOBuilder;
 import one.digitalinnovation.sppoapi.dto.mapper.ConsortiumMapper;
 import one.digitalinnovation.sppoapi.dto.request.ConsortiumDTO;
-import one.digitalinnovation.sppoapi.dto.response.MessageResponseDTO;
 import one.digitalinnovation.sppoapi.entities.Consortium;
+import one.digitalinnovation.sppoapi.exception.ConsortiumAlreadyRegisteredException;
 import one.digitalinnovation.sppoapi.repositories.ConsortiumRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,42 +12,40 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static one.digitalinnovation.sppoapi.utils.ConsortiumUtils.createFakeDTO;
-import static one.digitalinnovation.sppoapi.utils.ConsortiumUtils.createFakeEntity;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.any;
+import java.util.Optional;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ConsortiumServiceTest {
 
+    private static final long INVALID_CONSORTIUM_ID =1L;
+
     @Mock
     private ConsortiumRepository consortiumRepository;
 
-    @Mock
-    private ConsortiumMapper consortiumMapper;
+    private final ConsortiumMapper consortiumMapper = ConsortiumMapper.INSTANCE;
 
     @InjectMocks
     private ConsortiumService consortiumService;
 
     @Test
-    void testGivenConsortiumDTOThenReturnSuccessSavedMessage() {
-        ConsortiumDTO consortiumDTO = createFakeDTO();
-        Consortium expectedSavedConsortium = createFakeEntity();
+    void whenConsortiumInformedThenItShouldBeCreated() throws ConsortiumAlreadyRegisteredException {
+        // given
+        ConsortiumDTO expectedConsortiumDTO = ConsortiumDTOBuilder.builder().build().toConsortiumDTO();
+        Consortium expectedSavedConsortium = consortiumMapper.toModel(expectedConsortiumDTO);
 
-        when(consortiumMapper.toModel(consortiumDTO)).thenReturn(expectedSavedConsortium);
-        when(consortiumRepository.save(any(Consortium.class))).thenReturn(expectedSavedConsortium);
+        // when
+        when(consortiumRepository.findByName(String.valueOf(expectedConsortiumDTO.getName()))).thenReturn(Optional.empty());
+        when(consortiumRepository.save(expectedSavedConsortium)).thenReturn(expectedSavedConsortium);
 
-        MessageResponseDTO expectedSuccessMessage = createExpectedSuccessMessage(expectedSavedConsortium.getId());
-        MessageResponseDTO successMessage = consortiumService.create(consortiumDTO);
+        //then
+        ConsortiumDTO createdConsortiumDTO = consortiumService.create(expectedConsortiumDTO);
 
-        assertEquals(expectedSuccessMessage, successMessage);
+        assertThat(createdConsortiumDTO.getId(), is(expectedConsortiumDTO.getId()));
+        assertThat(createdConsortiumDTO.getName(), is(expectedConsortiumDTO.getName()));
+        assertThat(createdConsortiumDTO.getCnpj(), is(expectedConsortiumDTO.getCnpj()));
     }
-
-    private MessageResponseDTO createExpectedSuccessMessage(Long savedConsortiumId) {
-        return MessageResponseDTO.builder()
-                .message("Consortium successfully created with ID " + savedConsortiumId)
-                .build();
-    }
-
 }

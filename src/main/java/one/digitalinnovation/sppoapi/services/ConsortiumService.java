@@ -5,12 +5,14 @@ import one.digitalinnovation.sppoapi.dto.mapper.ConsortiumMapper;
 import one.digitalinnovation.sppoapi.dto.request.ConsortiumDTO;
 import one.digitalinnovation.sppoapi.dto.response.MessageResponseDTO;
 import one.digitalinnovation.sppoapi.entities.Consortium;
+import one.digitalinnovation.sppoapi.exception.ConsortiumAlreadyRegisteredException;
 import one.digitalinnovation.sppoapi.exception.ConsortiumNotFoundException;
 import one.digitalinnovation.sppoapi.repositories.ConsortiumRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,16 +20,29 @@ import java.util.stream.Collectors;
 public class ConsortiumService {
 
     private final ConsortiumRepository consortiumRepository;
-    private final ConsortiumMapper consortiumMapper;
+    private final ConsortiumMapper consortiumMapper = ConsortiumMapper.INSTANCE;
 
-    public MessageResponseDTO create(ConsortiumDTO consortiumDTO) {
+    public ConsortiumDTO create(ConsortiumDTO consortiumDTO) throws ConsortiumAlreadyRegisteredException {
+        verifyIfIsAlreadyRegistered(String.valueOf(consortiumDTO.getName()));
         Consortium consortium = consortiumMapper.toModel(consortiumDTO);
         Consortium savedConsortium = consortiumRepository.save(consortium);
-
-        MessageResponseDTO messageResponse = createMessageResponse("Consortium successfully created with ID ", savedConsortium.getId());
-
-        return messageResponse;
+        return consortiumMapper.toDTO(savedConsortium);
     }
+
+    public ConsortiumDTO findByName(String name) throws ConsortiumNotFoundException {
+        Consortium foundConsortium = consortiumRepository.findByName(name)
+                .orElseThrow(() -> new ConsortiumNotFoundException(name));
+        return consortiumMapper.toDTO(foundConsortium);
+    }
+
+    private void verifyIfIsAlreadyRegistered(String name) throws ConsortiumAlreadyRegisteredException {
+        Optional<Consortium> optSavedConsortium = consortiumRepository.findByName(name);
+        if (optSavedConsortium.isPresent()) {
+            throw new ConsortiumAlreadyRegisteredException(name);
+        }
+    }
+
+
 
     public ConsortiumDTO findById(Long id) throws ConsortiumNotFoundException {
         Consortium consortium = consortiumRepository.findById(id)
@@ -58,7 +73,6 @@ public class ConsortiumService {
     public void delete(Long id) throws ConsortiumNotFoundException {
         consortiumRepository.findById(id)
                 .orElseThrow(() -> new ConsortiumNotFoundException(id));
-
         consortiumRepository.deleteById(id);
     }
 

@@ -3,6 +3,7 @@ package one.digitalinnovation.sppoapi.controllers;
 import lombok.AllArgsConstructor;
 import one.digitalinnovation.sppoapi.dto.request.ConsortiumDTO;
 import one.digitalinnovation.sppoapi.dto.response.MessageResponseDTO;
+import one.digitalinnovation.sppoapi.exception.ConsortiumAlreadyRegisteredException;
 import one.digitalinnovation.sppoapi.exception.ConsortiumNotFoundException;
 import one.digitalinnovation.sppoapi.services.ConsortiumService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class ConsortiumController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public MessageResponseDTO create(@RequestBody @Valid ConsortiumDTO consortiumDTO) {
+    public ConsortiumDTO create(@RequestBody @Valid ConsortiumDTO consortiumDTO) throws ConsortiumAlreadyRegisteredException {
         return consortiumService.create(consortiumDTO);
     }
 
