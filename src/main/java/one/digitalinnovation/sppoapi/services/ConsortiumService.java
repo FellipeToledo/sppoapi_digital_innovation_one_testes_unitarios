@@ -11,6 +11,7 @@ import one.digitalinnovation.sppoapi.repositories.ConsortiumRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EnumType;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class ConsortiumService {
     private final ConsortiumMapper consortiumMapper = ConsortiumMapper.INSTANCE;
 
     public ConsortiumDTO create(ConsortiumDTO consortiumDTO) throws ConsortiumAlreadyRegisteredException {
-        verifyIfIsAlreadyRegistered(String.valueOf(consortiumDTO.getName()));
+        verifyIfIsAlreadyRegistered(consortiumDTO.getName());
         Consortium consortium = consortiumMapper.toModel(consortiumDTO);
         Consortium savedConsortium = consortiumRepository.save(consortium);
         return consortiumMapper.toDTO(savedConsortium);
@@ -34,15 +35,6 @@ public class ConsortiumService {
                 .orElseThrow(() -> new ConsortiumNotFoundException(name));
         return consortiumMapper.toDTO(foundConsortium);
     }
-
-    private void verifyIfIsAlreadyRegistered(String name) throws ConsortiumAlreadyRegisteredException {
-        Optional<Consortium> optSavedConsortium = consortiumRepository.findByName(name);
-        if (optSavedConsortium.isPresent()) {
-            throw new ConsortiumAlreadyRegisteredException(name);
-        }
-    }
-
-
 
     public ConsortiumDTO findById(Long id) throws ConsortiumNotFoundException {
         Consortium consortium = consortiumRepository.findById(id)
@@ -56,6 +48,13 @@ public class ConsortiumService {
         return consortium.stream()
                 .map(consortiumMapper::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    private void verifyIfIsAlreadyRegistered(String name) throws ConsortiumAlreadyRegisteredException {
+        Optional<Consortium> optSavedConsortium = consortiumRepository.findByName(name);
+        if (optSavedConsortium.isPresent()) {
+            throw new ConsortiumAlreadyRegisteredException(name);
+        }
     }
 
     public MessageResponseDTO update(Long id, ConsortiumDTO consortiumDTO) throws ConsortiumNotFoundException {

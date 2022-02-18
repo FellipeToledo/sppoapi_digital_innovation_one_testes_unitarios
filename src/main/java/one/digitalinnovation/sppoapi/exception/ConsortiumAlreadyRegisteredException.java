@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class ConsortiumAlreadyRegisteredException extends Exception {
 
-    public ConsortiumAlreadyRegisteredException(String consortiumName) {
-        super(String.format("Consortium with name %s already registered in the system.", consortiumName));
+    public ConsortiumAlreadyRegisteredException(String name) {
+        super(String.format("Consortium with name %s already registered in the system.", name));
     }
 }

@@ -34,6 +34,11 @@ public class ConsortiumController {
         return consortiumService.create(consortiumDTO);
     }
 
+    @GetMapping("/{name}")
+    public ConsortiumDTO findByName(ConsortiumDTO consortiumDTO) throws ConsortiumNotFoundException {
+        return consortiumService.findByName(String.valueOf(consortiumDTO.getName()));
+    }
+
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ConsortiumDTO findById(@PathVariable Long id) throws ConsortiumNotFoundException {
