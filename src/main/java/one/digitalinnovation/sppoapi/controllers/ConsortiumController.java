@@ -8,6 +8,7 @@ import one.digitalinnovation.sppoapi.exception.ConsortiumNotFoundException;
 import one.digitalinnovation.sppoapi.services.ConsortiumService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,13 +37,7 @@ public class ConsortiumController {
 
     @GetMapping("/{name}")
     public ConsortiumDTO findByName(ConsortiumDTO consortiumDTO) throws ConsortiumNotFoundException {
-        return consortiumService.findByName(String.valueOf(consortiumDTO.getName()));
-    }
-
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ConsortiumDTO findById(@PathVariable Long id) throws ConsortiumNotFoundException {
-        return consortiumService.findById(id);
+        return consortiumService.findByName(consortiumDTO.getName());
     }
 
     @GetMapping
@@ -56,9 +51,10 @@ public class ConsortiumController {
         return consortiumService.update(id, consortiumDTO);
     }
 
-    @DeleteMapping("/{id}")
+    @Transactional
+    @DeleteMapping("/{name}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) throws ConsortiumNotFoundException {
-        consortiumService.delete(id);
+    public void delete(@PathVariable String name) throws ConsortiumNotFoundException {
+        consortiumService.delete(name);
     }
 }

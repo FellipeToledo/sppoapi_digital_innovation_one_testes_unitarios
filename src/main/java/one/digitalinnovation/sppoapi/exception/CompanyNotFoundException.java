@@ -9,4 +9,8 @@ public class CompanyNotFoundException extends Exception {
         super(String.format("Company with ID %s not found!", id));
     }
 
+    public CompanyNotFoundException(String companyName) {
+        super(String.format("Company with name %s not found in the system.", companyName));
+    }
+
 }

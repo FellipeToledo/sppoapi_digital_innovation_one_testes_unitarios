@@ -17,7 +17,7 @@ public class CompanyDTOBuilder {
     private String name = "Real Auto Ônibus";
 
     @Builder.Default
-    private String cnpj = "11.222.333/0002-03";
+    private String cnpj = "11.222.333|0002-03";
 
     @Builder.Default
     private String address = "Avenida Canal 2 MD - 129 - Maré, Rio de Janeiro - RJ";

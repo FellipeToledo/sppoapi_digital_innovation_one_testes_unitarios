@@ -11,7 +11,6 @@ import one.digitalinnovation.sppoapi.repositories.ConsortiumRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EnumType;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,13 +35,6 @@ public class ConsortiumService {
         return consortiumMapper.toDTO(foundConsortium);
     }
 
-    public ConsortiumDTO findById(Long id) throws ConsortiumNotFoundException {
-        Consortium consortium = consortiumRepository.findById(id)
-                .orElseThrow(() -> new ConsortiumNotFoundException(id));
-
-        return consortiumMapper.toDTO(consortium);
-    }
-
     public List<ConsortiumDTO> listAll() {
         List<Consortium> consortium = consortiumRepository.findAll();
         return consortium.stream()
@@ -64,20 +56,18 @@ public class ConsortiumService {
         Consortium updatedConsortium = consortiumMapper.toModel(consortiumDTO);
         Consortium savedConsortium = consortiumRepository.save(updatedConsortium);
 
-        MessageResponseDTO messageResponse = createMessageResponse("Consortium successfully updated with ID ", savedConsortium.getId());
-
-        return messageResponse;
+        return createMessageResponse(savedConsortium.getId());
     }
 
-    public void delete(Long id) throws ConsortiumNotFoundException {
-        consortiumRepository.findById(id)
-                .orElseThrow(() -> new ConsortiumNotFoundException(id));
-        consortiumRepository.deleteById(id);
+    public void delete(String name) throws ConsortiumNotFoundException {
+        consortiumRepository.findByName(name)
+                .orElseThrow(() -> new ConsortiumNotFoundException(name));
+        consortiumRepository.deleteByName(name);
     }
 
-    private MessageResponseDTO createMessageResponse(String s, Long id2) {
+    private MessageResponseDTO createMessageResponse(Long id2) {
         return MessageResponseDTO.builder()
-                .message(s + id2)
+                .message("Consortium successfully updated with ID " + id2)
                 .build();
     }
 }

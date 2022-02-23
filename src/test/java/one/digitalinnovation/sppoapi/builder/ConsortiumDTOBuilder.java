@@ -1,6 +1,8 @@
 package one.digitalinnovation.sppoapi.builder;
 
 import lombok.Builder;
+import lombok.Singular;
+import lombok.ToString;
 import one.digitalinnovation.sppoapi.dto.request.CompanyDTO;
 import one.digitalinnovation.sppoapi.dto.request.ConsortiumDTO;
 
@@ -11,6 +13,7 @@ import java.util.List;
  */
 
 @Builder
+@ToString
 public class ConsortiumDTOBuilder {
 
     @Builder.Default
@@ -20,12 +23,16 @@ public class ConsortiumDTOBuilder {
     private String name = "Intersul";
 
     @Builder.Default
-    private String cnpj = "77. 888. 999/0001-02";
+    private String cnpj = "12.464.869/0001-76";
 
+    @Singular
     private List<CompanyDTO> companies;
 
     public ConsortiumDTO toConsortiumDTO() {
         return new ConsortiumDTO(id, name, cnpj, companies);
     }
+
+
+
 }
 

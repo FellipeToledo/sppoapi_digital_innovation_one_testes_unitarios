@@ -3,6 +3,7 @@ package one.digitalinnovation.sppoapi.controllers;
 import lombok.AllArgsConstructor;
 import one.digitalinnovation.sppoapi.dto.request.CompanyDTO;
 import one.digitalinnovation.sppoapi.dto.response.MessageResponseDTO;
+import one.digitalinnovation.sppoapi.exception.CompanyAlreadyRegisteredException;
 import one.digitalinnovation.sppoapi.exception.CompanyNotFoundException;
 import one.digitalinnovation.sppoapi.services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class CompanyController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public MessageResponseDTO create(@RequestBody @Valid CompanyDTO companyDTO) {
+    public CompanyDTO create(@RequestBody @Valid CompanyDTO companyDTO) throws CompanyAlreadyRegisteredException {
         return companyService.create(companyDTO);
     }
 

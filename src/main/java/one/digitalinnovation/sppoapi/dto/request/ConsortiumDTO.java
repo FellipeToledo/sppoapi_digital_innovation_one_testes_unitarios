@@ -24,6 +24,7 @@ public class ConsortiumDTO {
     @CNPJ // XX. XXX. XXX/0001-XX
     private String cnpj;
 
+    @NotNull
     private List<CompanyDTO> companies;
 
 }

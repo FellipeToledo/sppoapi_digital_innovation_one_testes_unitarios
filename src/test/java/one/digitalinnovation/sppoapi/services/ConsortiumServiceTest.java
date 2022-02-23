@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +39,7 @@ public class ConsortiumServiceTest {
         Consortium expectedSavedConsortium = consortiumMapper.toModel(expectedConsortiumDTO);
 
         // when
-        when(consortiumRepository.findByName(String.valueOf(expectedConsortiumDTO.getName()))).thenReturn(Optional.empty());
+        when(consortiumRepository.findByName(expectedConsortiumDTO.getName())).thenReturn(Optional.empty());
         when(consortiumRepository.save(expectedSavedConsortium)).thenReturn(expectedSavedConsortium);
 
         //then
@@ -47,5 +48,18 @@ public class ConsortiumServiceTest {
         assertThat(createdConsortiumDTO.getId(), is(expectedConsortiumDTO.getId()));
         assertThat(createdConsortiumDTO.getName(), is(expectedConsortiumDTO.getName()));
         assertThat(createdConsortiumDTO.getCnpj(), is(expectedConsortiumDTO.getCnpj()));
+    }
+
+    @Test
+    void whenAlreadyRegisteredConsortiumInformedThenAnExceptionShouldBeThrown() {
+        // given
+        ConsortiumDTO expectedConsortiumDTO = ConsortiumDTOBuilder.builder().build().toConsortiumDTO();
+        Consortium duplicatedConsortium = consortiumMapper.toModel(expectedConsortiumDTO);
+
+        // when
+        when(consortiumRepository.findByName(expectedConsortiumDTO.getName())).thenReturn(Optional.of(duplicatedConsortium));
+
+        // then
+        assertThrows(ConsortiumAlreadyRegisteredException.class, () -> consortiumService.create(expectedConsortiumDTO));
     }
 }

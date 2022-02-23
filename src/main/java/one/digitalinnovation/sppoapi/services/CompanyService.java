@@ -5,12 +5,14 @@ import one.digitalinnovation.sppoapi.dto.mapper.CompanyMapper;
 import one.digitalinnovation.sppoapi.dto.request.CompanyDTO;
 import one.digitalinnovation.sppoapi.dto.response.MessageResponseDTO;
 import one.digitalinnovation.sppoapi.entities.Company;
+import one.digitalinnovation.sppoapi.exception.CompanyAlreadyRegisteredException;
 import one.digitalinnovation.sppoapi.exception.CompanyNotFoundException;
 import one.digitalinnovation.sppoapi.repositories.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,14 +20,19 @@ import java.util.stream.Collectors;
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
-    private final CompanyMapper companyMapper;
+    private final CompanyMapper companyMapper = CompanyMapper.INSTANCE;
 
-    public MessageResponseDTO create(CompanyDTO companyDTO) {
+    public CompanyDTO create(CompanyDTO companyDTO) throws CompanyAlreadyRegisteredException {
+        verifyIfIsAlreadyRegistered(companyDTO.getName());
         Company company = companyMapper.toModel(companyDTO);
         Company savedCompany = companyRepository.save(company);
-        MessageResponseDTO messageResponse = createMessageResponse("Company successfully created with ID ", savedCompany.getId());
-        return messageResponse;
+        return companyMapper.toDTO(savedCompany);
+    }
 
+    public CompanyDTO findByName(String name) throws CompanyNotFoundException{
+        Company foundCompany = companyRepository.findByName(name)
+                .orElseThrow(() -> new CompanyNotFoundException(name));
+        return companyMapper.toDTO(foundCompany);
     }
 
     public CompanyDTO findById(Long id) throws CompanyNotFoundException {
@@ -40,6 +47,13 @@ public class CompanyService {
         return company.stream()
                 .map(companyMapper::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    private void verifyIfIsAlreadyRegistered(String name) throws CompanyAlreadyRegisteredException {
+        Optional<Company> optSavedCompany = companyRepository.findByName(name);
+        if (optSavedCompany.isPresent()) {
+            throw new CompanyAlreadyRegisteredException(name);
+        }
     }
 
     public MessageResponseDTO update(Long id, CompanyDTO companyDTO) throws CompanyNotFoundException {
@@ -57,7 +71,6 @@ public class CompanyService {
     public void delete(Long id) throws CompanyNotFoundException {
         companyRepository.findById(id)
                 .orElseThrow(() -> new CompanyNotFoundException(id));
-
         companyRepository.deleteById(id);
     }
 

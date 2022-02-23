@@ -7,4 +7,7 @@ import java.util.Optional;
 
 public interface ConsortiumRepository extends JpaRepository<Consortium, Long> {
     Optional<Consortium> findByName(String name);
+    void deleteByName(String name);
+
+    //void deleteByName(String name);
 }
