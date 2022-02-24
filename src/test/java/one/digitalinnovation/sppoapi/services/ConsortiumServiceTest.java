@@ -13,11 +13,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -90,5 +94,30 @@ public class ConsortiumServiceTest {
 
         // then
         assertThrows(ConsortiumNotFoundException.class,() -> consortiumService.findByName(expectedFoundConsortiumDTO.getName()));
+    }
+
+    @Test
+    void whenListConsortiumIsCalledThenReturnAListOfConsortium() {
+        // given
+        ConsortiumDTO expectedFoundConsortiumDTO = ConsortiumDTOBuilder.builder().build().toConsortiumDTO();
+        Consortium expectedFoundConsortium = consortiumMapper.toModel(expectedFoundConsortiumDTO);
+
+        // when
+        when(consortiumRepository.findAll()).thenReturn(Collections.singletonList(expectedFoundConsortium));
+        List<ConsortiumDTO> consortiaDTO = consortiumService.listAll();
+
+        // then
+        assertThat(consortiaDTO, is(not(empty())));
+        assertThat(consortiaDTO.get(0), is(expectedFoundConsortiumDTO));
+    }
+
+    @Test
+    void whenListConsortiumIsCalledThenReturnAEmptyListOfConsortium() {
+        // when
+        when(consortiumRepository.findAll()).thenReturn(Collections.EMPTY_LIST);
+        List<ConsortiumDTO> consortiaDTO = consortiumService.listAll();
+
+        // then
+        assertThat(consortiaDTO, is(empty()));
     }
 }

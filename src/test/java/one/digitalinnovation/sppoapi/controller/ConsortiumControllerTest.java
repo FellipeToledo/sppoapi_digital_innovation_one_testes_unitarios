@@ -17,6 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import java.util.Collections;
+
 import static one.digitalinnovation.sppoapi.utils.JsonConvertionUtils.asJsonString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
@@ -117,5 +119,34 @@ public class ConsortiumControllerTest {
         mockMvc.perform(get(CONSORTIUM_API_URL_PATH + "/" + consortiumDTOBuilder.getName())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void whenGETListWithConsortiumIsCalledThenOkStatusIsReturned () throws Exception {
+        // given
+        ConsortiumDTO consortiumDTOBuilder = ConsortiumDTOBuilder.builder().build().toConsortiumDTO();
+
+        // when
+        when(consortiumService.listAll()).thenReturn(Collections.singletonList(consortiumDTOBuilder));
+
+        // then
+        mockMvc.perform(get(CONSORTIUM_API_URL_PATH)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name", is(consortiumDTOBuilder.getName())))
+                .andExpect(jsonPath("$[0].cnpj", is(consortiumDTOBuilder.getCnpj())));
+    }
+    @Test
+    void whenGETListWithoutConsortiumIsCalledThenOkStatusIsReturned () throws Exception {
+        // given
+        ConsortiumDTO consortiumDTOBuilder = ConsortiumDTOBuilder.builder().build().toConsortiumDTO();
+
+        // when
+        when(consortiumService.listAll()).thenReturn(Collections.singletonList(consortiumDTOBuilder));
+
+        // then
+        mockMvc.perform(get(CONSORTIUM_API_URL_PATH)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 }
