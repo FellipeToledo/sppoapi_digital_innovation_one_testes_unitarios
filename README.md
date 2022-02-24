@@ -1,8 +1,8 @@
 <h2>Implementação de testes unitários no projeto SPPO-API</h2>
 
 Este projeto tem como objetivo testar, unitariamente, a API REST SPPO. 
-Construindo testes unitários para validar o sistema de gerenciamento de consórcios e empresas
-desenvolvido em Spring Boot, e também apresentar os principais conceitos e vantagens de criar testes unitários com JUnit e Mockito.
+Construindo testes unitários nos métodos das classes Service e Controller com JUnit e Mockito para validar o sistema de gerenciamento de consórcios e empresas
+desenvolvido em Spring Boot.
 Além disso, será desenvolvido funcionalidades da API através da prática do TDD.
 
 As seguintes dependências foram adicionadas ao projeto:
