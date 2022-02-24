@@ -3,6 +3,7 @@ package one.digitalinnovation.sppoapi.controller;
 import one.digitalinnovation.sppoapi.builder.ConsortiumDTOBuilder;
 import one.digitalinnovation.sppoapi.controllers.ConsortiumController;
 import one.digitalinnovation.sppoapi.dto.request.ConsortiumDTO;
+import one.digitalinnovation.sppoapi.exception.ConsortiumNotFoundException;
 import one.digitalinnovation.sppoapi.services.ConsortiumService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import static one.digitalinnovation.sppoapi.utils.JsonConvertionUtils.asJsonString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -85,5 +87,35 @@ public class ConsortiumControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(consortiumDTOBuilder)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void whenGETIsCalledWithValidNameThenOkStatusIsReturned () throws Exception {
+        // given
+        ConsortiumDTO consortiumDTOBuilder = ConsortiumDTOBuilder.builder().build().toConsortiumDTO();
+
+        // when
+        when(consortiumService.findByName(consortiumDTOBuilder.getName())).thenReturn(consortiumDTOBuilder);
+
+        // then
+        mockMvc.perform(get(CONSORTIUM_API_URL_PATH + "/" + consortiumDTOBuilder.getName())
+                        .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.name", is(consortiumDTOBuilder.getName())))
+                        .andExpect(jsonPath("$.cnpj", is(consortiumDTOBuilder.getCnpj())));
+    }
+
+    @Test
+    void whenGETIsCalledWithoutRegisteredNameThenNotFoundStatusIsReturned () throws Exception {
+        // given
+        ConsortiumDTO consortiumDTOBuilder = ConsortiumDTOBuilder.builder().build().toConsortiumDTO();
+
+        // when
+        when(consortiumService.findByName(consortiumDTOBuilder.getName())).thenThrow(ConsortiumNotFoundException.class);
+
+        // then
+        mockMvc.perform(get(CONSORTIUM_API_URL_PATH + "/" + consortiumDTOBuilder.getName())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

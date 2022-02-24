@@ -5,6 +5,7 @@ import one.digitalinnovation.sppoapi.dto.mapper.ConsortiumMapper;
 import one.digitalinnovation.sppoapi.dto.request.ConsortiumDTO;
 import one.digitalinnovation.sppoapi.entities.Consortium;
 import one.digitalinnovation.sppoapi.exception.ConsortiumAlreadyRegisteredException;
+import one.digitalinnovation.sppoapi.exception.ConsortiumNotFoundException;
 import one.digitalinnovation.sppoapi.repositories.ConsortiumRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -61,5 +63,32 @@ public class ConsortiumServiceTest {
 
         // then
         assertThrows(ConsortiumAlreadyRegisteredException.class, () -> consortiumService.create(expectedConsortiumDTO));
+    }
+
+    @Test
+    void whenValidConsortiumNameGivenThenReturnAConsortium() throws ConsortiumNotFoundException {
+        // given
+        ConsortiumDTO expectedFoundConsortiumDTO = ConsortiumDTOBuilder.builder().build().toConsortiumDTO();
+        Consortium expectedFoundConsortium = consortiumMapper.toModel(expectedFoundConsortiumDTO);
+
+        // when
+        when(consortiumRepository.findByName(expectedFoundConsortium.getName())).thenReturn(Optional.of(expectedFoundConsortium));
+
+        // then
+        ConsortiumDTO foundConsortiumDTO = consortiumService.findByName(expectedFoundConsortiumDTO.getName());
+
+        assertThat(foundConsortiumDTO, is(equalTo(expectedFoundConsortiumDTO)));
+    }
+
+    @Test
+    void whenNotRegisteredConsortiumNameGivenThenThrowAnException() throws ConsortiumNotFoundException {
+        // given
+        ConsortiumDTO expectedFoundConsortiumDTO = ConsortiumDTOBuilder.builder().build().toConsortiumDTO();
+
+        // when
+        when(consortiumRepository.findByName(expectedFoundConsortiumDTO.getName())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ConsortiumNotFoundException.class,() -> consortiumService.findByName(expectedFoundConsortiumDTO.getName()));
     }
 }
