@@ -21,7 +21,12 @@ import java.util.Collections;
 
 import static one.digitalinnovation.sppoapi.utils.JsonConvertionUtils.asJsonString;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -35,10 +40,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ConsortiumControllerTest {
 
     private static final String CONSORTIUM_API_URL_PATH = "/api/v1/consortium";
-    private static final long VALID_CONSORTIUM_ID = 1L;
-    private static final long INVALID_CONSORTIUM_ID = 2L;
-    private static final String CONSORTIUM_API_SUBPATH_INCREMENT_URL = "/increment";
-    private static final String CONSORTIUM_API_SUBPATH_DECREMENT_URL = "/decrement";
+    private static final String VALID_CONSORTIUM_NAME = "Intersul";
+    private static final String INVALID_CONSORTIUM_NAME = "Internorte";
+
 
     private MockMvc mockMvc;
 
@@ -148,5 +152,25 @@ public class ConsortiumControllerTest {
         mockMvc.perform(get(CONSORTIUM_API_URL_PATH)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void whenDELETEIsCalledWithValidNameThenNoContentStatusIsReturned() throws Exception {
+        doNothing().when(consortiumService).deleteByName(VALID_CONSORTIUM_NAME);
+
+        mockMvc.perform(delete(CONSORTIUM_API_URL_PATH + "/" + VALID_CONSORTIUM_NAME)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        verify(consortiumService, times(1)).deleteByName(VALID_CONSORTIUM_NAME);
+    }
+
+    @Test
+    void whenDELETEIsCalledWithoutValidNameThenNotFoundStatusIsReturned() throws Exception {
+        doThrow(ConsortiumNotFoundException.class).when(consortiumService).deleteByName(INVALID_CONSORTIUM_NAME);
+
+        mockMvc.perform(delete(CONSORTIUM_API_URL_PATH + "/" + INVALID_CONSORTIUM_NAME)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

@@ -54,7 +54,7 @@ public class ConsortiumController {
     @Transactional
     @DeleteMapping("/{name}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable String name) throws ConsortiumNotFoundException {
-        consortiumService.delete(name);
+    public void deleteByName(@PathVariable String name) throws ConsortiumNotFoundException {
+        consortiumService.deleteByName(name);
     }
 }

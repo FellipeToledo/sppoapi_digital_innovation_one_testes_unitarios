@@ -59,7 +59,7 @@ public class ConsortiumService {
         return createMessageResponse(savedConsortium.getId());
     }
 
-    public void delete(String name) throws ConsortiumNotFoundException {
+    public void deleteByName(String name) throws ConsortiumNotFoundException {
         consortiumRepository.findByName(name)
                 .orElseThrow(() -> new ConsortiumNotFoundException(name));
         consortiumRepository.deleteByName(name);

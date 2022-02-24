@@ -23,12 +23,15 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ConsortiumServiceTest {
 
-    private static final long INVALID_CONSORTIUM_ID =1L;
+    private static final String INVALID_CONSORTIUM_NAME = "";
 
     @Mock
     private ConsortiumRepository consortiumRepository;
@@ -120,4 +123,29 @@ public class ConsortiumServiceTest {
         // then
         assertThat(consortiaDTO, is(empty()));
     }
+
+    @Test
+    void wenExclusionIsCalledWithValidNameThanAnConsortiumShouldBeDeleted() throws ConsortiumNotFoundException {
+        // given
+        ConsortiumDTO expectedDeletedConsortiumDTO = ConsortiumDTOBuilder.builder().build().toConsortiumDTO();
+        Consortium expectedDeletedConsortium = consortiumMapper.toModel(expectedDeletedConsortiumDTO);
+
+        // when
+        when(consortiumRepository.findByName(expectedDeletedConsortiumDTO.getName())).thenReturn(Optional.of(expectedDeletedConsortium));
+        doNothing().when(consortiumRepository).deleteByName(expectedDeletedConsortiumDTO.getName());
+
+        // then
+        consortiumService.deleteByName(expectedDeletedConsortiumDTO.getName());
+
+        verify(consortiumRepository, times(1)).findByName(expectedDeletedConsortiumDTO.getName());
+        verify(consortiumRepository, times(1)).deleteByName(expectedDeletedConsortiumDTO.getName());
+    }
+
+    @Test
+    void whenExclusionIsCalledWithInvalidNameThenExceptionShouldBeThrown() {
+        when(consortiumRepository.findByName(INVALID_CONSORTIUM_NAME)).thenReturn(Optional.empty());
+
+        assertThrows(ConsortiumNotFoundException.class, () -> consortiumService.deleteByName(INVALID_CONSORTIUM_NAME));
+    }
+
 }
